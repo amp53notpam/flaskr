@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+<title>{% block title %}{% endblock %} - Flaskr</title>
+{% block styles %}{% endblock %}
+</head>
+<body>
+<nav>
+    <h1><a href="{{ url_for('blog_bp.index') }}">Flaskr</a></h1>
+  <ul>
+    {% if g.user %}
+      <li><span>{{ g.user['username'] }}</span>
+      <li><a href="{{ url_for('auth_bp.logout') }}">Log Out</a>
+    {% else %}
+      <li><a href="{{ url_for('auth_bp.register') }}">Register</a>
+      <li><a href="{{ url_for('auth_bp.login') }}">Log In</a>
+    {% endif %}
+  </ul>
+</nav>
+<section class="content">
+  <header>
+    {% block header %}{% endblock %}
+  </header>
+  {% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</section>
+</body>
+</html>

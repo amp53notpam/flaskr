@@ -1,0 +1,35 @@
+{% extends 'layout.jinja2' %}
+
+{% block header %}
+  <h1>{% block title %}Edit "{{ post.title }}"{% endblock %}</h1>
+{% endblock %}
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('.static', filename='style.css') }}">
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    {{ form_update.csrf_token }}
+    {{ form_update.title.label }} {{ form_update.title(value=post.title) }}
+       {% if form_update.title.errors %}
+        <ul class="errors">
+	      {% for error in form_update.title.errors %}
+	         <li>{{ error }}</li>
+	      {% endfor %}
+	    </ul>
+      {% endif %}
+    {{ form_update.body.label }}{{ form_update.body }}
+       {% if form_update.body.errors %}
+        <ul class="errors">
+	      {% for error in form_update.body.errors %}
+	         <li>{{ error }}</li>
+	      {% endfor %}
+	    </ul>
+      {% endif %}
+    {{ form_update.submit }}
+  </form>
+    <hr>
+  <form action="{{ url_for('.delete', id=post.id) }}" method="post">
+    {{ form_delete.submit(class="danger", onclick="return confirm('Are you sure?');") }}
+  </form>
+{% endblock %}

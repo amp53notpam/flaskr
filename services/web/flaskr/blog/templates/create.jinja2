@@ -1,0 +1,32 @@
+{% extends 'layout.jinja2' %}
+
+ {% block styles %}
+    <link rel="stylesheet" href="{{ url_for('blog_bp.static', filename='style.css') }}">
+ {% endblock %}
+
+{% block header %}
+  <h1>{% block title %}New Post{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="POST">
+    {{ form.csrf_token }}
+    {{ form.title.label }} {{ form.title }}
+       {% if form.title.errors %}
+        <ul class="errors">
+	      {% for error in form.title.errors %}
+	         <li>{{ error }}</li>
+	      {% endfor %}
+	    </ul>
+      {% endif %}
+    {{ form.body.label }}{{ form.body }}
+       {% if form.body.errors %}
+        <ul class="errors">
+	      {% for error in form.body.errors %}
+	         <li>{{ error }}</li>
+	      {% endfor %}
+	    </ul>
+      {% endif %}
+    {{ form.submit }}
+  </form>
+{% endblock %}
