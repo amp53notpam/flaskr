@@ -1,4 +1,5 @@
 import os
+from threading import Lock
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -27,8 +28,5 @@ def create_app(test_config=None):
 
         from .blog import blog
         app.register_blueprint(blog.blog_bp)
-
-        # create database tables, if needed
-        db.create_all()
 
         return app
