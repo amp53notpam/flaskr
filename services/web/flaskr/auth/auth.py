@@ -1,6 +1,6 @@
 import functools
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, redirect, render_template, request, session, url_for, send_from_directory
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from ..models import db, User, Post
@@ -46,6 +46,7 @@ def register():
             error = 'User {} is already registered.'.format(username)
 
         if error is None:
+
             new_user = User(
                 username=username,
                 password=generate_password_hash(password)
@@ -90,3 +91,8 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for('blog_bp.index'))
+
+
+@auth_bp.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory(auth_bp.static_folder, filename)

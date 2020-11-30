@@ -35,7 +35,7 @@ FROM python:3.9.0-slim-buster
 RUN addgroup --system flasker && adduser --system --group flasker
 
 # create a home directory for flasker user and 
-RUN mkdir -p /home/flasker/web
+RUN mkdir -p /home/flasker/ && mkdir -p /home/flasker/web && mkdir /home/flasker/web/logs
 
 # create the appropriate directories
 ENV HOME=/home/flasker

@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, redirect, render_template, request, session, url_for, send_from_directory
 )
 from werkzeug.exceptions import abort
 from ..auth.auth import login_required
@@ -86,3 +86,8 @@ def delete(id):
     if post is not None:
         db.session.delete(post)
         db.session.commit()
+
+
+@blog_bp.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory(blog_bp.static_folder, filename)

@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
     web:
-        image: angelo53/flask_web:0.1
+        build: ./services/web
         command: >-
             gunicorn --worker-class gthread --workers ${WORKERS}
                      --bind 0.0.0.0:5000 wsgi:app
@@ -27,7 +27,7 @@ services:
             - ./.env.prod.db
 
     nginx:
-        image: angelo53/flask_nginx:0.1
+        build: ./services/nginx
         volumes:
             - static_volume_1:/home/flasker/web/flaskr/auth/static
             - static_volume_2:/home/flasker/web/flaskr/blog/static
