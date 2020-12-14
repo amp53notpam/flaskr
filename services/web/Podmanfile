@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -x
+
+# Create a build container
+buildcntr=$(buildah from python:3.9.0-slim-buster)
+
+build_mp=$(buildah mount $buildcntr)
+
+
+buildah config --workingdir /var/tmp/app $buildcntr
+
+buildah config --env PYTHONDONTWRITEBYTECODE=1 $buildcntr
+buildah config --env PYTHONUNBUFFERED=1 $buildcntr
+
+buildah run $buildcntr apt-get update
+buildah run $buildcntr apt-get install -y --no-install-recommends gcc
+ 
+buildah run $buildcntr pip install -U pip
+buildah run $buildcntr pip install flake8
+buildah copy $buildcntr .
+buildah run $buildcntr flake8 --ignore=E501,F401 .
+buildah run $buildcntr pip wheel --no-cache-dir --no-deps --wheel-dir /var/tmp/app/wheels -r requirements.txt
+
+# create the final container
+container=$(buildah from python:3.9.0-slim-buster)
+
+container_mp=$(buildah mount $container)
+buildah config --label maintainer="Angelo Mosè Pozzi<amp53notpam@gmail.com>" $container
+
+HOME=/home/flasker
+APP_HOME=$HOME/web
+
+buildah run $container addgroup --system flasker
+buildah run $container adduser --system --group flasker
+
+buildah run $container mkdir -p $APP_HOME
+buildah run $container mkdir -p $APP_HOME/logs
+
+buildah config --workingdir $APP_HOME $container
+
+buildah run $container apt-get update
+buildah run $container apt-get install -y netcat
+
+cp -r $build_mp/var/tmp/app/wheels $container_mp/$APP_HOME/wheels
+cp $build_mp/var/tmp/app/requirements.txt $container_mp/$APP_HOME
+buildah unmount $buildcntr
+
+buildah run $container pip install -U pip
+buildah run $container pip install --no-cache --no-index -f wheels/ -r requirements.txt
+buildah run $container rm -r wheels/
+
+buildah copy $container .
+
+buildah run $container chown -R flasker:flasker $APP_HOME
+
+buildah config --user flasker $container
+
+#buildah config --cmd "python wsgi.py" $container
+buildah config --cmd "gunicorn --worker-class gthread --workers ${WORKERS} --bind 0.0.0.0:5000 wsgi:app --access-logfile /home/flasker/web/logs/gunicorn-access.log --error-logfile /home/flasker/web/logs/gunicorn-error.log" $container
+buildah config --entrypoint '["/home/flasker/web/entrypoint.sh"]' $container
+
+buildah unmount $container
+
+buildah commit --rm $container  flaskr_web:1.0

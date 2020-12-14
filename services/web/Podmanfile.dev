@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+set -o errexit
+
+# Create a container
+container=$(buildah from python:3.9.0-slim-buster)
+
+#mountpoint=$(buildah mount $container)
+
+buildah config --label maintainer="Angelo Mosè Pozzi<amp53notpam@gmail.com>" $container
+
+buildah config --workingdir /opt/app $container
+
+buildah config --env PYTHONDONTWRITEBYTECODE=1 $container
+buildah config --env PYTHONUNBUFFERED=1 $container
+
+buildah run $container apt-get update
+buildah run $container apt-get install -y netcat
+buildah run $container apt-get clean
+
+buildah run $container pip install -U pip
+
+buildah copy $container "./requirements.txt" "/tmp"
+buildah run $container pip install -r /tmp/requirements.txt
+
+buildah copy $container .
+
+buildah config --cmd "python wsgi.py" $container
+buildah config --entrypoint '["/opt/app/entrypoint.sh"]' $container
+buildah commit --rm $container  flaskr_web:1.0
+
