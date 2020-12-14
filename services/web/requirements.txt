@@ -11,6 +11,7 @@ Jinja2==2.11.2
 jsmin==2.2.2
 lesscpy==0.14.0
 MarkupSafe==1.1.1
+ply
 psycopg2-binary
 python-dotenv==0.15.0
 six==1.15.0
