@@ -13,5 +13,5 @@ cp flaskr.conf $container_mp/etc/nginx/conf.d
 
 buildah unmount $container
 
-buildah commit --rm $container  flaskr_nginx:1.0
+buildah commit --rm $container  flaskr_nginx:1.1
 
